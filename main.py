@@ -8,6 +8,7 @@ from deep_translator import GoogleTranslator
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/img", StaticFiles(directory="img"), name="img")
 templates = Jinja2Templates(directory="templates")
 
 posts = {
@@ -27,6 +28,10 @@ comments = []
 async def choose_language(request: Request):
     return templates.TemplateResponse("choose.html", {"request": request})
 
+@app.post("/set_language")
+async def set_language(language: str = Form(...)):
+    return RedirectResponse(url=f"/post/{language}", status_code=303)
+
 @app.get("/post/{lang}", response_class=HTMLResponse)
 async def show_post(request: Request, lang: str):
     post = posts.get(lang)
@@ -41,7 +46,7 @@ async def show_post(request: Request, lang: str):
         else:
             try:
                 tr = GoogleTranslator(source=c["lang"], target=lang).translate(c["text"])
-                translated_comments.append(f"{tr}  (ориг: {c['text']})")
+                translated_comments.append(f"{tr}")
             except Exception:
                 translated_comments.append(f"{c['text']} (ошибка перевода)")
 
@@ -55,4 +60,4 @@ async def show_post(request: Request, lang: str):
 @app.post("/comment/{lang}")
 async def add_comment(lang: str, text: str = Form(...)):
     comments.append({"text": text, "lang": lang})
-    return RedirectResponse(f"/post/{lang}", status_code=303)
+    return RedirectResponse(url = f"/post/{lang}", status_code=303)
