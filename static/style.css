@@ -1,0 +1,80 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f5f5f5;
+    color: #333;
+}
+
+header {
+    background: #4a90e2;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+.container {
+    width: 95%;
+    max-width: 600px;
+    margin: 1rem auto;
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+button, .btn {
+    background: #4a90e2;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+button:hover, .btn:hover {
+    background: #357ab7;
+}
+
+select, input, textarea {
+    width: 100%;
+    padding: 0.6rem;
+    margin: 0.5rem 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.comment {
+    background: #f1f1f1;
+    border-radius: 5px;
+    padding: 0.8rem;
+    margin: 0.5rem 0;
+    word-wrap: break-word;
+}
+
+/* 📱 адаптив */
+@media (max-width: 480px) {
+    header {
+        font-size: 1rem;
+        padding: 0.8rem;
+    }
+
+    .container {
+        padding: 0.8rem;
+    }
+
+    button, .btn {
+        font-size: 0.9rem;
+        padding: 0.5rem;
+    }
+
+    select, input, textarea {
+        font-size: 0.9rem;
+    }
+}
