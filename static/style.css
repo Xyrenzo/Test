@@ -11,6 +11,20 @@ header {
     color: white;
     padding: 1rem;
     text-align: center;
+    position: relative;
+}
+
+.lang-form {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+}
+
+.lang-form select {
+    padding: 0.3rem;
+    border-radius: 5px;
+    border: none;
+    font-size: 1rem;
 }
 
 .container {
@@ -34,6 +48,9 @@ button, .btn {
     transition: background 0.3s ease;
     width: 100%;
     margin-top: 0.5rem;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
 }
 
 button:hover, .btn:hover {
@@ -50,6 +67,10 @@ select, input, textarea {
     box-sizing: border-box;
 }
 
+.comment-box {
+    margin-top: 1rem;
+}
+
 .comment {
     background: #f1f1f1;
     border-radius: 5px;
@@ -58,7 +79,7 @@ select, input, textarea {
     word-wrap: break-word;
 }
 
-/* 📱 адаптив */
+/* 📱 Адаптив для WebApp */
 @media (max-width: 480px) {
     header {
         font-size: 1rem;
