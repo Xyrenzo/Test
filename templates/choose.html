@@ -1,22 +1,29 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <title>Choose Language</title>
-  <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
-    a { display: block; margin: 10px; padding: 10px; border: 1px solid #ccc; text-decoration: none; border-radius: 8px; }
-    a:hover { background: #f0f0f0; }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
 </head>
 <body>
-  <h2>Choose your language:</h2>
-  <a href="/post/en">English</a>
-  <a href="/post/ru">Русский</a>
-  <a href="/post/ja">日本語</a>
-  <a href="/post/ko">한국어</a>
-  <a href="/post/zh">中文</a>
-  <a href="/post/es">Español</a>
-  <a href="/post/pt">Português</a>
+  <header>
+    <h1>Choose your language</h1>
+  </header>
+
+  <div class="container">
+    <form action="/set_language" method="post">
+      <label for="language">Language:</label>
+      <select name="language" id="language">
+        <option value="en" selected>English</option>
+        <option value="ru">Русский</option>
+        <option value="ja">日本語</option>
+        <option value="ko">한국어</option>
+        <option value="zh">中文</option>
+        <option value="es">Español</option>
+        <option value="pt">Português</option>
+      </select>
+      <button type="submit">Continue</button>
+    </form>
+  </div>
 </body>
 </html>
