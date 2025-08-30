@@ -1,24 +1,36 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <title>{{ post.title }}</title>
   <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
 </head>
 <body>
+<header>
   <h2>{{ post.title }}</h2>
-  <img src="{{ post.img }}" alt="post">
-  <p>{{ post.body }}</p>
+  <form action="/set_language" method="post" class="lang-form">
+    <select name="language" onchange="this.form.submit()">
+      {% for code in ['en','ru','ja','ko','zh','es','pt'] %}
+        <option value="{{ code }}" {% if code == lang %}selected{% endif %}>{{ code.upper() }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</header>
 
-  <div class="comment-box">
-    <h3>Comments</h3>
-    {% for c in comments %}
-      <div class="comment">{{ c }}</div>
-    {% endfor %}
-    <form action="/comment/{{ lang }}" method="post">
-      <textarea name="text" placeholder="Write a comment..."></textarea>
-      <button type="submit">Send</button>
-    </form>
-  </div>
+<img src="{{ post.img }}" alt="post">
+<p>{{ post.body }}</p>
+
+<a href="#comments" class="btn">Comments</a>
+
+<div id="comments" class="comment-box">
+  <h3>Comments</h3>
+  {% for c in comments %}
+    <div class="comment">{{ c }}</div>
+  {% endfor %}
+  <form action="/comment/{{ post_id }}/{{ lang }}" method="post">
+    <textarea name="text" placeholder="Write a comment..." required></textarea>
+    <button type="submit">Send</button>
+  </form>
+</div>
 </body>
 </html>
