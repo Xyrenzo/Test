@@ -6,28 +6,7 @@ body {
     color: #333;
 }
 
-header {
-    background: #4a90e2;
-    color: white;
-    padding: 1rem;
-    text-align: center;
-    position: relative;
-}
-
-.lang-form {
-    position: absolute;
-    right: 1rem;
-    top: 1rem;
-}
-
-.lang-form select {
-    padding: 0.3rem;
-    border-radius: 5px;
-    border: none;
-    font-size: 1rem;
-}
-
-.container {
+.post-container {
     width: 95%;
     max-width: 600px;
     margin: 1rem auto;
@@ -37,34 +16,21 @@ header {
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-button, .btn {
-    background: #4a90e2;
-    color: white;
-    padding: 0.6rem 1.2rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background 0.3s ease;
+.post-img {
     width: 100%;
-    margin-top: 0.5rem;
-    text-decoration: none;
-    display: inline-block;
-    text-align: center;
+    height: auto;
+    border-radius: 8px;
 }
 
-button:hover, .btn:hover {
-    background: #357ab7;
+.post-title {
+    font-weight: bold;
+    font-size: 1.4rem;
+    margin: 0.5rem 0 0.3rem 0;
 }
 
-select, input, textarea {
-    width: 100%;
-    padding: 0.6rem;
-    margin: 0.5rem 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+.post-body {
     font-size: 1rem;
-    box-sizing: border-box;
+    margin-bottom: 1rem;
 }
 
 .comment-box {
@@ -79,23 +45,48 @@ select, input, textarea {
     word-wrap: break-word;
 }
 
-/* 📱 Адаптив для WebApp */
+button, .btn {
+    background: #4a90e2;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    width: 100%;
+    margin-top: 0.5rem;
+    text-align: center;
+    display: inline-block;
+    text-decoration: none;
+}
+
+button:hover, .btn:hover {
+    background: #357ab7;
+}
+
+textarea {
+    width: 100%;
+    padding: 0.6rem;
+    margin: 0.5rem 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+/* Адаптив для WebApp на телефоне */
 @media (max-width: 480px) {
-    header {
-        font-size: 1rem;
+    .post-container {
         padding: 0.8rem;
     }
-
-    .container {
-        padding: 0.8rem;
+    .post-title {
+        font-size: 1.2rem;
     }
-
-    button, .btn {
+    .post-body {
+        font-size: 0.95rem;
+    }
+    button, .btn, textarea {
         font-size: 0.9rem;
         padding: 0.5rem;
-    }
-
-    select, input, textarea {
-        font-size: 0.9rem;
     }
 }
