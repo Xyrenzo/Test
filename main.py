@@ -70,7 +70,3 @@ async def show_post(request: Request, post_id: int, lang: str):
 async def add_comment(post_id: int, lang: str, text: str = Form(...)):
     comments.append({"post_id": post_id, "text": text, "lang": lang})
     return RedirectResponse(url=f"/post/{post_id}/{lang}", status_code=303)
-
-@app.get("/change_lang/{post_id}/{lang}")
-async def change_language(post_id: int, lang: str = Form(...)):
-    return RedirectResponse(url=f"/post/{post_id}/{lang}", status_code=303)
