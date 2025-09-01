@@ -4,13 +4,25 @@
     <meta charset="UTF-8">
     <title>{{ post.title }} — Комментарии</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .back-link {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            text-decoration: none;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
+<a href="/post/{{ lang }}" class="back-link">←</a>
+
 <div class="post-container">
     <h2>{{ post.title }}</h2>
 
-    <form method="post">
-        <textarea name="text" placeholder="Напиши комментарий..."></textarea>
+    <form method="post" class="comment-form" id="commentForm">
+        <textarea name="text" id="commentInput" placeholder="Напиши комментарий..."></textarea>
         <button type="submit">Отправить</button>
     </form>
 
@@ -18,5 +30,17 @@
         <div class="comment">{{ c }}</div>
     {% endfor %}
 </div>
+
+<script>
+    const textarea = document.getElementById("commentInput");
+    const form = document.getElementById("commentForm");
+
+    textarea.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            form.submit();
+        }
+    });
+</script>
 </body>
 </html>
