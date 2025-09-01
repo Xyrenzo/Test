@@ -10,7 +10,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/img", StaticFiles(directory="img"), name="img")
 templates = Jinja2Templates(directory="templates")
 
----------------- БД ----------------
+ 
 
 def init_db():
 conn = sqlite3.connect("db.sqlite3")
@@ -68,7 +68,7 @@ def set_user_lang(user_id: int, lang: str):
 
 init_db()
 
----------------- Данные ----------------
+ 
 
 posts = {
     1: {
@@ -124,7 +124,7 @@ posts = {
 }
 comments = []
 
----------------- Маршруты ----------------
+
 
 @app.get("/", response_class=HTMLResponse)
 async def choose_language(request: Request, user_id: int = Query(...)):
