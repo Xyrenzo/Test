@@ -13,10 +13,10 @@ templates = Jinja2Templates(directory="templates")
  
 
 def init_db():
-conn = sqlite3.connect("db.sqlite3")
-cursor = conn.cursor()
+    conn = sqlite3.connect("db.sqlite3")
+    cursor = conn.cursor()
 
-cursor.execute("""
+    cursor.execute("""
 CREATE TABLE IF NOT EXISTS post_status (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -26,15 +26,15 @@ CREATE TABLE IF NOT EXISTS post_status (
 )
 """)
 
-cursor.execute(""" CREATE TABLE IF NOT EXISTS user_settings (
+    cursor.execute(""" CREATE TABLE IF NOT EXISTS user_settings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER UNIQUE NOT NULL,
     lang TEXT NOT NULL DEFAULT 'en'
 )
 """)
 
-conn.commit()
-conn.close()
+    conn.commit()
+    conn.close()
 
 def mark_post_as_read(user_id: int, post_id: int):
     conn = sqlite3.connect("db.sqlite3")
