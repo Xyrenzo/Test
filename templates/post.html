@@ -1,16 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang }}">
 <head>
-<meta charset="UTF-8">
-<title>{{ post.title }}</title>
-<link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+    <meta charset="UTF-8">
+    <title>{{ post.title }}</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 <div class="post-container">
-  <img src="{{ post.img }}" alt="post" class="post-img">
-  <h2 class="post-title">{{ post.title }}</h2>
-  <p class="post-body">{{ post.body }}</p>
-  <a href="/post/{{ post_id }}/comments/{{ lang }}" class="btn">Comments</a>
+
+    <!-- Галерея по спирали -->
+    <div class="fibonacci-gallery">
+        {% for img in post.images %}
+            <img src="{{ img }}" class="fibonacci-img img-{{ loop.index }}">
+        {% endfor %}
+    </div>
+
+    <!-- Заголовок -->
+    <div class="post-title">{{ post.title }}</div>
+
+    <!-- Текст -->
+    <div class="post-body">{{ post.body }}</div>
+
+    <!-- Ссылка на комменты -->
+    <a href="/post/{{ post_id }}/comments/{{ lang }}" class="btn">Комментарии</a>
 </div>
 </body>
 </html>
