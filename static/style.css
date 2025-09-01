@@ -123,3 +123,12 @@ padding: 0.5rem;
 .filters .btn.active {
     background: #2c5fa3;
 }
+select {
+  font-size: 18px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+}
