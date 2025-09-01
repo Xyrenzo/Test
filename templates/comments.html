@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang }}">
 <head>
-<meta charset="UTF-8">
-<title>Comments - {{ post.title }}</title>
-<link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+    <meta charset="UTF-8">
+    <title>{{ post.title }} — Комментарии</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 <div class="post-container">
-  <h2 class="post-title">{{ post.title }}</h2>
-  <div class="comment-box">
-    {% for c in comments %}
-      <div class="comment">{{ c }}</div>
-    {% endfor %}
-    <form action="/post/{{ post_id }}/comments/{{ lang }}" method="post">
-      <textarea name="text" placeholder="Write a comment..." required></textarea>
-      <button type="submit">Send</button>
+    <h2>{{ post.title }}</h2>
+
+    <form method="post">
+        <textarea name="text" placeholder="Напиши комментарий..."></textarea>
+        <button type="submit">Отправить</button>
     </form>
-  </div>
+
+    {% for c in comments %}
+        <div class="comment">{{ c }}</div>
+    {% endfor %}
 </div>
 </body>
 </html>
