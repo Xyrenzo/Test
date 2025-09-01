@@ -94,22 +94,12 @@ posts = {
     },
     3: {
         "title": {
-            "en": "Simple Post",
-            "ru": "Простой пост",
-            "ja": "シンプルな投稿",
-            "ko": "간단한 게시물",
-            "zh": "简单的帖子",
-            "es": "Publicación simple",
-            "pt": "Postagem simples"
+            "en": "Hello World!", "ru": "Привет, мир!", "ja": "こんにちは世界！",
+            "ko": "안녕하세요 세계!", "zh": "你好，世界！", "es": "¡Hola Mundo!", "pt": "Olá Mundo!"
         },
         "body": {
-            "en": "Just another post with one picture.",
-            "ru": "Ещё один пост с одной картинкой.",
-            "ja": "1枚の写真付きの投稿です。",
-            "ko": "사진 한 장이 있는 또 다른 게시물입니다.",
-            "zh": "另一篇带有一张图片的帖子。",
-            "es": "Otra publicación con una imagen.",
-            "pt": "Outra postagem com uma imagem."
+            "en": "Hello World!", "ru": "Привет, мир!", "ja": "こんにちは世界！",
+            "ko": "안녕하세요 세계!", "zh": "你好，世界！", "es": "¡Hola Mundo!", "pt": "Olá Mundo!"
         },
         "images": [
             "/img/IMG_20250901_182650_107.jpg"
@@ -180,7 +170,7 @@ async def show_comments(request: Request, post_id: int, lang: str):
                 post_comments.append(c["text"])
             else:
                 try:
-                    tr = GoogleTranslator(source=c["lang"], target=lang).translate(c["text"])
+                    tr = c["text"]
                     post_comments.append(tr)
                 except Exception:
                     post_comments.append(f"{c['text']} (ошибка перевода)")
