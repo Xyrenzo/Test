@@ -64,8 +64,7 @@ async def choose_language(request: Request):
 
 @app.post("/set_language")
 async def set_language(language: str = Form(...)):
-    first_post_id = min(posts.keys())
-    return RedirectResponse(url=f"/post/{first_post_id}/{language}", status_code=303)
+    return RedirectResponse(url=f"/post/{language}", status_code=303)
 
 @app.get("/post/{lang}", response_class=HTMLResponse)
 async def show_all_posts(request: Request, lang: str):
