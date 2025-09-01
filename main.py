@@ -38,29 +38,34 @@ conn.commit()
 conn.close()
 
 def mark_post_as_read(user_id: int, post_id: int):
-conn = sqlite3.connect("db.sqlite3") cursor = conn.cursor()
-cursor.execute(""" INSERT INTO post_status (user_id, post_id, status) VALUES (?, ?, 'read') ON CONFLICT(user_id, post_id) DO UPDATE SET status='read' """, (user_id, post_id))
-conn.commit()
-conn.close()
+    conn = sqlite3.connect("db.sqlite3")
+    cursor = conn.cursor()
+    cursor.execute(""" INSERT INTO post_status (user_id, post_id, status) VALUES (?, ?, 'read') ON CONFLICT(user_id, post_id) DO UPDATE SET status='read' """, (user_id, post_id))
+    conn.commit()
+    conn.close()
 
 def get_user_read_ids(user_id: int):
-conn = sqlite3.connect("db.sqlite3")
-cursor = conn.cursor()
-cursor.execute("SELECT post_id FROM post_status WHERE user_id=? AND status='read'", (user_id,))
-ids = {row[0] for row in cursor.fetchall()}
-conn.close()
-return ids
+    conn = sqlite3.connect("db.sqlite3")
+    cursor = conn.cursor()
+    cursor.execute("SELECT post_id FROM post_status WHERE user_id=? AND status='read'", (user_id,))
+    ids = {row[0] for row in cursor.fetchall()}
+    conn.close()
+    return ids
 
 def get_user_lang(user_id: int) -> str:
-conn = sqlite3.connect("db.sqlite3") cursor = conn.cursor() cursor.execute("SELECT lang FROM user_settings WHERE user_id=?", (user_id,))
-row = cursor.fetchone()
-conn.close()
-return row[0] if row else None
+    conn = sqlite3.connect("db.sqlite3")
+    cursor = conn.cursor()
+    cursor.execute("SELECT lang FROM user_settings WHERE user_id=?", (user_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return row[0] if row else None
 
 def set_user_lang(user_id: int, lang: str):
-conn = sqlite3.connect("db.sqlite3") cursor = conn.cursor()
-cursor.execute(""" INSERT INTO user_settings (user_id, lang) VALUES (?, ?) ON CONFLICT(user_id) DO UPDATE SET lang=excluded.lang """, (user_id, lang)) conn.commit()
-conn.close()
+    conn = sqlite3.connect("db.sqlite3")
+    cursor = conn.cursor()
+    cursor.execute(""" INSERT INTO user_settings (user_id, lang) VALUES (?, ?) ON CONFLICT(user_id) DO UPDATE SET lang=excluded.lang """, (user_id, lang))
+    conn.commit()
+    conn.close()
 
 init_db()
 
@@ -124,57 +129,57 @@ comments = []
 
 @app.get("/", response_class=HTMLResponse)
 async def choose_language(request: Request, user_id: int = Query(...)):
-lang = get_user_lang(user_id)
-if lang:
-    return RedirectResponse(url=f"/post/{lang}/all?user_id={user_id}")
-return templates.TemplateResponse("choose.html", {"request": request, "user_id": user_id})
+    lang = get_user_lang(user_id)
+    if lang:
+        return RedirectResponse(url=f"/post/{lang}/all?user_id={user_id}")
+    return templates.TemplateResponse("choose.html", {"request": request, "user_id": user_id})
 
 @app.post("/set_language")
 async def set_language(language: str = Form(...), user_id: int = Form(...)):
-set_user_lang(user_id, language)
-return RedirectResponse(url=f"/post/{language}/all?user_id={user_id}", status_code=303)
+    set_user_lang(user_id, language)
+    return RedirectResponse(url=f"/post/{language}/all?user_id={user_id}", status_code=303)
 
 @app.get("/post/{lang}/{filter}", response_class=HTMLResponse)
 async def show_posts(request: Request, lang: str, filter: str = "all", user_id: int = Query(...)):
-user_lang = get_user_lang(user_id) or "en"
+    user_lang = get_user_lang(user_id) OR "en"
 
-if lang != user_lang:
-    return RedirectResponse(f"/post/{user_lang}/{filter}?user_id={user_id}")
+    if lang != user_lang:
+        return RedirectResponse(f"/post/{user_lang}/{filter}?user_id={user_id}")
 
-read_ids = get_user_read_ids(user_id)
-if filter == "read":
-    ids = read_ids
-elif filter == "unread":
-    ids = set(posts.keys()) - read_ids
-else:
-    ids = set(posts.keys())
+    read_ids = get_user_read_ids(user_id)
+    if filter == "read":
+        ids = read_ids
+    elif filter == "unread":
+        ids = set(posts.keys()) - read_ids
+    else:
+        ids = set(posts.keys())
 
-filtered_posts = []
-for pid in ids:
-    if pid in posts:
-        post = posts[pid]
-        filtered_posts.append({
-            "id": pid,
-            "title": post["title"].get(user_lang, post["title"]["en"]),
-            "body": post["body"].get(user_lang, post["body"]["en"]),
-            "images": post["images"]
-        })
+    filtered_posts = []
+    for pid in ids:
+        if pid in posts:
+            post = posts[pid]
+            filtered_posts.append({
+                "id": pid,
+                "title": post["title"].get(user_lang, post["title"]["en"]),
+                "body": post["body"].get(user_lang, post["body"]["en"]),
+                "images": post["images"]
+            })
 
-return templates.TemplateResponse("post.html", {
-    "request": request,
-    "lang": user_lang,
-    "posts": filtered_posts,
-    "filter": filter,
-    "user_id": user_id
+    return templates.TemplateResponse("post.html", {
+        "request": request,
+        "lang": user_lang,
+        "posts": filtered_posts,
+        "filter": filter,
+        "user_id": user_id
 })
 
 @app.post("/mark_read/{post_id}")
 async def mark_read(post_id: int, user_id: int = Form(...)):
-mark_post_as_read(user_id, post_id)
-return JSONResponse({"status": "ok"})
+    mark_post_as_read(user_id, post_id)
+    return JSONResponse({"status": "ok"})
 
 @app.post("/change_language")
 async def change_language(language: str = Form(...), user_id: int = Form(...)):
-set_user_lang(user_id, language)
-return RedirectResponse(f"/post/{language}/all?user_id={user_id}", status_code=303)
+    set_user_lang(user_id, language)
+    return RedirectResponse(f"/post/{language}/all?user_id={user_id}", status_code=303)
 
