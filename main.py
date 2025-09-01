@@ -1,8 +1,7 @@
 from fastapi import FastAPI, Request, Form, Query
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating
-import Jinja2Templates
+from fastapi.templating import Jinja2Templates
 import sqlite3
 
 app = FastAPI()
