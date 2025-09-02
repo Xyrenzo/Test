@@ -127,7 +127,7 @@ comments = []
 
 
 @app.get("/", response_class=HTMLResponse)
-async def choose_language(request: Request, user_id: int = Query(...)):
+async def choose_language(request: Request, user_id: int = Form(...)):
     lang = get_user_lang(user_id)
     if lang:
         return RedirectResponse(url=f"/post/{lang}/all?user_id={user_id}")
