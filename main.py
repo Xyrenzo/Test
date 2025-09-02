@@ -140,7 +140,7 @@ async def set_language(language: str = Form(...), user_id: int = Form(...)):
 
 @app.get("/post/{lang}/{filter}", response_class=HTMLResponse)
 async def show_posts(request: Request, lang: str, filter: str = "all", user_id: int = Query(...)):
-    user_lang = get_user_lang(user_id) OR "en"
+    user_lang = get_user_lang(user_id)
 
     if lang != user_lang:
         return RedirectResponse(f"/post/{user_lang}/{filter}?user_id={user_id}")
