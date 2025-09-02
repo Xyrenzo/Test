@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, Query, Path
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS post_status (
 )
 """)
 
-    cursor.execute(""" 
+    cursor.execute("""
 CREATE TABLE IF NOT EXISTS user_settings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER UNIQUE NOT NULL,
@@ -145,24 +145,25 @@ comments = []
 
 
 @app.get("/", response_class=HTMLResponse)
-async def choose_language(request: Request, user_id: int):
+async def choose_language(request: Request, user_id: int = Query(...)):
     lang = get_user_lang(user_id)
     if lang:
-        return RedirectResponse(url=f"/post/{lang}/all", status_code=303)
+        return RedirectResponse(url=f"/post/{lang}/all?user_id={user_id}", status_code=303)
     return templates.TemplateResponse("choose.html", {"request": request, "user_id": user_id})
 
 
 @app.post("/set_language")
 async def set_language(language: str = Form(...), user_id: int = Form(...)):
     set_user_lang(user_id, language)
-    return RedirectResponse(url=f"/post/{language}/all", status_code=303)
+    return RedirectResponse(url=f"/post/{language}/all?user_id={user_id}", status_code=303)
 
 
-@app.post("/post/{lang}/{filter}", response_class=HTMLResponse)
-async def show_posts(request: Request, lang: str, filter: str = Form("all"), user_id: int = Form(...)):
-    user_lang = get_user_lang(user_id)
-    if user_lang and lang != user_lang:
-        return RedirectResponse(f"/post/{user_lang}/{filter}", status_code=303)
+@app.get("/post/{lang}/{filter}", response_class=HTMLResponse)
+async def show_posts(request: Request, lang: str, filter: str = Path("all"), user_id: int = Query(...)):
+    user_lang = get_user_lang(user_id) or "en"
+
+    if lang != user_lang:
+        return RedirectResponse(f"/post/{user_lang}/{filter}?user_id={user_id}", status_code=303)
 
     read_ids = get_user_read_ids(user_id)
     if filter == "read":
@@ -201,4 +202,4 @@ async def mark_read(post_id: int, user_id: int = Form(...)):
 @app.post("/change_language")
 async def change_language(language: str = Form(...), user_id: int = Form(...)):
     set_user_lang(user_id, language)
-    return RedirectResponse(f"/post/{language}/all", status_code=303)
+    return RedirectResponse(f"/post/{language}/all?user_id={user_id}", status_code=303)
