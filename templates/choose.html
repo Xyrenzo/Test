@@ -12,6 +12,8 @@
 
   <div class="container">
     <form action="/set_language" method="post">
+      <input type="hidden" name="user_id" value="{{ user_id }}">
+  
       <label for="language">Language:</label>
       <select name="language" id="language">
         <option value="ru" selected>🇷🇺</option> 
