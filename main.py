@@ -234,10 +234,20 @@ async def post_comments(request: Request, post_id: int, lang: str, user_id: int 
     user_lang = get_user_lang(user_id) or "en"
     if lang != user_lang:
         return RedirectResponse(f"/post/{user_lang}/all?user_id={user_id}", status_code=303)
+
+    post = posts.get(post_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
     items = get_comments(post_id)
+
     return templates.TemplateResponse("comments.html", {
         "request": request,
-        "post_id": post_id,
+        "post": {
+            "id": post_id,
+            "title": post["title"].get(user_lang, post["title"]["en"]),
+            "body": post["body"].get(user_lang, post["body"]["en"])
+        },
         "lang": lang,
         "user_id": user_id,
         "comments": items
