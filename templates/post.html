@@ -7,16 +7,17 @@
 </head>
 <body>
     <header>
-        <form method="post" action="/set-language">
-             <select name="language" onchange="this.form.submit()">
-                 <option value="ru" selected>🇷🇺</option> 
-                 <option value="en">🇺🇸</option>
-                 <option value="ja">🇯🇵</option>
-                 <option value="ko">🇰🇷</option>
-                 <option value="zh">🇨🇳</option>
-                 <option value="es">🇪🇸</option>
-                 <option value="pt">🇵🇹</option>
-             </select>
+        <form method="post" action="/change_language">
+            <input type="hidden" name="user_id" value="{{ user_id }}">
+            <select name="language" onchange="this.form.submit()">
+                <option value="ru" {% if lang=='ru' %}selected{% endif %}>🇷🇺</option>
+                <option value="en" {% if lang=='en' %}selected{% endif %}>🇺🇸</option>
+                <option value="ja" {% if lang=='ja' %}selected{% endif %}>🇯🇵</option>
+                <option value="ko" {% if lang=='ko' %}selected{% endif %}>🇰🇷</option>
+                <option value="zh" {% if lang=='zh' %}selected{% endif %}>🇨🇳</option>
+                <option value="es" {% if lang=='es' %}selected{% endif %}>🇪🇸</option>
+                <option value="pt" {% if lang=='pt' %}selected{% endif %}>🇵🇹</option>
+            </select>
         </form>
     </header>
     <div class="filters">
@@ -36,7 +37,7 @@
         <div class="post-title">{{ post.title }}</div>
         <div class="post-body">{{ post.body }}</div>
 
-        <a href="/post/{{ post.id }}/comments/{{ lang }}" class="btn comment-btn">Комментарии</a>
+        <a href="/post/{{ post.id }}/comments/{{ lang }}?user_id={{ user_id }}" class="btn comment-btn">Комментарии</a>
     </div>
     {% endfor %}
 
