@@ -20,9 +20,9 @@
         </form>
     </header>
     <div class="filters">
-        <a href="/post/{{ lang }}/all" class="btn {% if filter=='all' %}active{% endif %}">Все</a>
-        <a href="/post/{{ lang }}/unread" class="btn {% if filter=='unread' %}active{% endif %}">Непрочитанные</a>
-        <a href="/post/{{ lang }}/read" class="btn {% if filter=='read' %}active{% endif %}">Прочитанные</a>
+        <a href="/post/{{ lang }}/all?user_id={{ user_id }}" class="btn {% if filter=='all' %}active{% endif %}">Все</a>
+        <a href="/post/{{ lang }}/unread?user_id={{ user_id }}" class="btn {% if filter=='unread' %}active{% endif %}">Непрочитанные</a>
+        <a href="/post/{{ lang }}/read?user_id={{ user_id }}" class="btn {% if filter=='read' %}active{% endif %}">Прочитанные</a>
     </div>
 
     {% for post in posts %}
