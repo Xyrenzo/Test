@@ -194,7 +194,7 @@ async def show_posts(request: Request, lang: str, filter: str = "all", user_id: 
 
 
 @app.post("/mark_read/{post_id}")
-async def mark_read(post_id: int, user_id: int = Form(...)):
+async def mark_read(post_id: int, user_id: int = Query(...)):
     mark_post_as_read(user_id, post_id)
     return JSONResponse({"status": "ok"})
 
