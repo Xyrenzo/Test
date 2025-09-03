@@ -13,22 +13,58 @@
             text-decoration: none;
             color: #333;
         }
+        .comment-form {
+            margin: 1rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .comment-form textarea {
+            width: 100%;
+            min-height: 60px;
+            resize: vertical;
+            padding: 8px;
+            font-size: 14px;
+        }
+        .comment-form button {
+            align-self: flex-end;
+        }
+        .comment-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid #ddd;
+        }
+        .comment-meta {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 4px;
+        }
     </style>
 </head>
 <body>
-<a href="/post/{{ lang }}" class="back-link">←</a>
+<a href="/post/{{ lang }}/all?user_id={{ user_id }}" class="back-link">←</a>
 
 <div class="post-container">
     <h2>{{ post.title }}</h2>
 
-    <form method="post" class="comment-form" id="commentForm">
-        <textarea name="text" id="commentInput" placeholder="Напиши комментарий..."></textarea>
+    <form action="/post/{{ post.id }}/comments/add" method="post" class="comment-form" id="commentForm">
+        <input type="hidden" name="user_id" value="{{ user_id }}">
+        <input type="hidden" name="lang" value="{{ lang }}">
+        <textarea name="content" id="commentInput" placeholder="Напиши комментарий..." required></textarea>
         <button type="submit">Отправить</button>
     </form>
 
-    {% for c in comments %}
-        <div class="comment">{{ c }}</div>
-    {% endfor %}
+    <div class="comments-list">
+        {% if comments %}
+            {% for c in comments %}
+                <div class="comment-item">
+                    <div class="comment-meta">user {{ c.user_id }} • {{ c.created_at }}</div>
+                    <div class="comment-text">{{ c.content }}</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty">Комментариев пока нет</div>
+        {% endif %}
+    </div>
 </div>
 
 <script>
