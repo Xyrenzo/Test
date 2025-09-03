@@ -32,6 +32,16 @@ CREATE TABLE IF NOT EXISTS user_settings (
     lang TEXT NOT NULL DEFAULT 'en'
 )
 """)
+    
+    cursor.execute("""
+CREATE TABLE IF NOT EXISTS comments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    post_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
 
     conn.commit()
     conn.close()
@@ -204,11 +214,36 @@ async def change_language(language: str = Form(...), user_id: int = Form(...)):
     set_user_lang(user_id, language)
     return RedirectResponse(f"/post/{language}/all?user_id={user_id}", status_code=303)
 
+def get_comments(post_id: int):
+    conn = sqlite3.connect("db.sqlite3")
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, user_id, content, created_at FROM comments WHERE post_id=? ORDER BY created_at DESC", (post_id,))
+    rows = cursor.fetchall()
+    conn.close()
+    return [{"id": r[0], "user_id": r[1], "content": r[2], "created_at": r[3]} for r in rows]
+
+def add_comment(post_id: int, user_id: int, content: str):
+    conn = sqlite3.connect("db.sqlite3")
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO comments (post_id, user_id, content) VALUES (?, ?, ?)", (post_id, user_id, content))
+    conn.commit()
+    conn.close()
+
 @app.get("/post/{post_id}/comments/{lang}", response_class=HTMLResponse)
 async def post_comments(request: Request, post_id: int, lang: str, user_id: int = Query(...)):
+    user_lang = get_user_lang(user_id) or "en"
+    if lang != user_lang:
+        return RedirectResponse(f"/post/{user_lang}/all?user_id={user_id}", status_code=303)
+    items = get_comments(post_id)
     return templates.TemplateResponse("comments.html", {
         "request": request,
         "post_id": post_id,
         "lang": lang,
-        "user_id": user_id
+        "user_id": user_id,
+        "comments": items
     })
+
+@app.post("/post/{post_id}/comments/add")
+async def post_comment_add(post_id: int, content: str = Form(...), user_id: int = Form(...), lang: str = Form(...)):
+    add_comment(post_id, user_id, content)
+    return RedirectResponse(f"/post/{post_id}/comments/{lang}?user_id={user_id}", status_code=303)
