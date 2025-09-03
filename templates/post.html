@@ -47,7 +47,7 @@
                     if (entry.isIntersecting) {
                         const post = entry.target.closest(".post-container");
                         const postId = post.dataset.postId;
-                        fetch(`/mark_read/${postId}`, {method: "POST"});
+                        fetch(`/mark_read/${postId}?user_id={{ user_id }}`, {method: "POST"});
                     }
                 });
             }, { threshold: 1.0 });
