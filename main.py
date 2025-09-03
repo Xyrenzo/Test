@@ -11,6 +11,7 @@ app.mount("/img", StaticFiles(directory="img"), name="img")
 templates = Jinja2Templates(directory="templates")
 
 
+
 def init_db():
     conn = sqlite3.connect("db.sqlite3")
     cursor = conn.cursor()
