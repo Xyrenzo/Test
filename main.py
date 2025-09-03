@@ -203,3 +203,12 @@ async def mark_read(post_id: int, user_id: int = Form(...)):
 async def change_language(language: str = Form(...), user_id: int = Form(...)):
     set_user_lang(user_id, language)
     return RedirectResponse(f"/post/{language}/all?user_id={user_id}", status_code=303)
+
+@app.get("/post/{post_id}/comments/{lang}", response_class=HTMLResponse)
+async def post_comments(request: Request, post_id: int, lang: str, user_id: int = Query(...)):
+    return templates.TemplateResponse("comments.html", {
+        "request": request,
+        "post_id": post_id,
+        "lang": lang,
+        "user_id": user_id
+    })
