@@ -28,7 +28,7 @@
 
     {% for post in posts %}
     <div class="post-container" data-post-id="{{ post.id }}">
-        <div class="fibonacci-gallery">
+        <div class="image-stack">
             {% for img in post.images %}
                 <img src="{{ img }}" class="fibonacci-img img-{{ loop.index }}">
             {% endfor %}
