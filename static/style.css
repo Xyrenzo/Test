@@ -84,7 +84,7 @@ header select {
 }
 
 .post-container {
-    background: #1c1e21;
+    background: #0d1b2a;
     margin: 16px auto;
     padding: 20px;
     border-radius: 12px;
@@ -110,7 +110,7 @@ header select {
 .header-text .channel-name {
     font-weight: bold;
     font-size: 16px;
-    color: #050505;
+    color: #fff;
 }
 
 .header-text .time {
