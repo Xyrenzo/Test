@@ -1,8 +1,15 @@
-from fastapi import FastAPI, Request, Form, Query, Path
+from fastapi import FastAPI, Request, Form, Query, Path, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-import sqlite3
+from sqlalchemy import create_engine, Column, Integer, String, Text, TIMESTAMP, UniqueConstraint, CheckConstraint, func
+from sqlalchemy.orm import sessionmaker, declarative_base, Session
+
+DATABASE_URL = "postgresql://xyrenzo:jTF8wn6fr2GxkIadpPbW4IGQB0JR9cpL@dpg-d37fp76mcj7s73fke010-a/maket"
+
+engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+Base = declarative_base()
 
 app = FastAPI()
 
@@ -11,93 +18,87 @@ app.mount("/img", StaticFiles(directory="img"), name="img")
 templates = Jinja2Templates(directory="templates")
 
 
+# ---------- MODELS ----------
+class PostStatus(Base):
+    __tablename__ = "post_status"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=False)
+    post_id = Column(Integer, nullable=False)
+    status = Column(String, nullable=False)
+    __table_args__ = (
+        UniqueConstraint("user_id", "post_id"),
+        CheckConstraint("status IN ('read','unread')"),
+    )
 
+
+class UserSettings(Base):
+    __tablename__ = "user_settings"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, unique=True, nullable=False)
+    lang = Column(String, nullable=False, default="en")
+
+
+class Comment(Base):
+    __tablename__ = "comments"
+    id = Column(Integer, primary_key=True, index=True)
+    post_id = Column(Integer, nullable=False)
+    user_id = Column(Integer, nullable=False)
+    content = Column(Text, nullable=False)
+    created_at = Column(TIMESTAMP, server_default=func.now())
+
+
+# ---------- INIT ----------
 def init_db():
-    conn = sqlite3.connect("db.sqlite3")
-    cursor = conn.cursor()
-
-    cursor.execute("""
-CREATE TABLE IF NOT EXISTS post_status (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    post_id INTEGER NOT NULL,
-    status TEXT CHECK(status IN ('read','unread')) NOT NULL,
-    UNIQUE(user_id, post_id)
-)
-""")
-
-    cursor.execute("""
-CREATE TABLE IF NOT EXISTS user_settings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER UNIQUE NOT NULL,
-    lang TEXT NOT NULL DEFAULT 'en'
-)
-""")
-    
-    cursor.execute("""
-CREATE TABLE IF NOT EXISTS comments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    post_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
-    content TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
-""")
-
-    conn.commit()
-    conn.close()
+    Base.metadata.create_all(bind=engine)
 
 
-def mark_post_as_read(user_id: int, post_id: int):
-    conn = sqlite3.connect("db.sqlite3")
-    cursor = conn.cursor()
-    cursor.execute(
-        """ INSERT INTO post_status (user_id, post_id, status) 
-            VALUES (?, ?, 'read') 
-            ON CONFLICT(user_id, post_id) 
-            DO UPDATE SET status='read' """,
-        (user_id, post_id),
-    )
-    conn.commit()
-    conn.close()
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
-def get_user_read_ids(user_id: int):
-    conn = sqlite3.connect("db.sqlite3")
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT post_id FROM post_status WHERE user_id=? AND status='read'",
-        (user_id,),
-    )
-    ids = {row[0] for row in cursor.fetchall()}
-    conn.close()
-    return ids
+# ---------- HELPERS ----------
+def mark_post_as_read(user_id: int, post_id: int, db: Session):
+    obj = db.query(PostStatus).filter_by(user_id=user_id, post_id=post_id).first()
+    if obj:
+        obj.status = "read"
+    else:
+        obj = PostStatus(user_id=user_id, post_id=post_id, status="read")
+        db.add(obj)
+    db.commit()
 
 
-def get_user_lang(user_id: int) -> str:
-    conn = sqlite3.connect("db.sqlite3")
-    cursor = conn.cursor()
-    cursor.execute("SELECT lang FROM user_settings WHERE user_id=?", (user_id,))
-    row = cursor.fetchone()
-    conn.close()
-    return row[0] if row else None
+def get_user_read_ids(user_id: int, db: Session):
+    rows = db.query(PostStatus).filter_by(user_id=user_id, status="read").all()
+    return {row.post_id for row in rows}
 
 
-def set_user_lang(user_id: int, lang: str):
-    conn = sqlite3.connect("db.sqlite3")
-    cursor = conn.cursor()
-    cursor.execute(
-        """ INSERT INTO user_settings (user_id, lang) 
-            VALUES (?, ?) 
-            ON CONFLICT(user_id) 
-            DO UPDATE SET lang=excluded.lang """,
-        (user_id, lang),
-    )
-    conn.commit()
-    conn.close()
+def get_user_lang(user_id: int, db: Session) -> str | None:
+    row = db.query(UserSettings).filter_by(user_id=user_id).first()
+    return row.lang if row else None
 
 
-init_db()
+def set_user_lang(user_id: int, lang: str, db: Session):
+    row = db.query(UserSettings).filter_by(user_id=user_id).first()
+    if row:
+        row.lang = lang
+    else:
+        row = UserSettings(user_id=user_id, lang=lang)
+        db.add(row)
+    db.commit()
+
+
+def get_comments(post_id: int, db: Session):
+    rows = db.query(Comment).filter_by(post_id=post_id).order_by(Comment.created_at.desc()).all()
+    return [{"id": r.id, "user_id": r.user_id, "content": r.content, "created_at": r.created_at} for r in rows]
+
+
+def add_comment(post_id: int, user_id: int, content: str, db: Session):
+    db.add(Comment(post_id=post_id, user_id=user_id, content=content))
+    db.commit()
 
 
 posts = {
@@ -152,31 +153,35 @@ posts = {
         ]
     }
 }
-comments = []
+
+# ---------- ROUTES ----------
+@app.on_event("startup")
+def startup():
+    init_db()
 
 
 @app.get("/", response_class=HTMLResponse)
-async def choose_language(request: Request, user_id: int = Query(...)):
-    lang = get_user_lang(user_id)
+async def choose_language(request: Request, user_id: int = Query(...), db: Session = next(get_db())):
+    lang = get_user_lang(user_id, db)
     if lang:
         return RedirectResponse(url=f"/post/{lang}/all?user_id={user_id}", status_code=303)
     return templates.TemplateResponse("choose.html", {"request": request, "user_id": user_id})
 
 
 @app.post("/set_language")
-async def set_language(language: str = Form(...), user_id: int = Form(...)):
-    set_user_lang(user_id, language)
+async def set_language(language: str = Form(...), user_id: int = Form(...), db: Session = next(get_db())):
+    set_user_lang(user_id, language, db)
     return RedirectResponse(url=f"/post/{language}/all?user_id={user_id}", status_code=303)
 
 
 @app.get("/post/{lang}/{filter}", response_class=HTMLResponse)
-async def show_posts(request: Request, lang: str, filter: str = "all", user_id: int = Query(...)):
-    user_lang = get_user_lang(user_id) or "en"
+async def show_posts(request: Request, lang: str, filter: str = "all", user_id: int = Query(...), db: Session = next(get_db())):
+    user_lang = get_user_lang(user_id, db) or "en"
 
     if lang != user_lang:
         return RedirectResponse(f"/post/{user_lang}/{filter}?user_id={user_id}", status_code=303)
 
-    read_ids = get_user_read_ids(user_id)
+    read_ids = get_user_read_ids(user_id, db)
     if filter == "read":
         ids = read_ids
     elif filter == "unread":
@@ -195,44 +200,24 @@ async def show_posts(request: Request, lang: str, filter: str = "all", user_id: 
                 "images": post["images"]
             })
 
-    return templates.TemplateResponse("post.html", {
-        "request": request,
-        "lang": user_lang,
-        "posts": filtered_posts,
-        "filter": filter,
-        "user_id": user_id
-    })
+    return templates.TemplateResponse("post.html", {"request": request, "lang": user_lang, "posts": filtered_posts, "filter": filter, "user_id": user_id})
 
 
 @app.post("/mark_read/{post_id}")
-async def mark_read(post_id: int, user_id: int = Query(...)):
-    mark_post_as_read(user_id, post_id)
+async def mark_read(post_id: int, user_id: int = Query(...), db: Session = next(get_db())):
+    mark_post_as_read(user_id, post_id, db)
     return JSONResponse({"status": "ok"})
 
 
 @app.post("/change_language")
-async def change_language(language: str = Form(...), user_id: int = Form(...)):
-    set_user_lang(user_id, language)
+async def change_language(language: str = Form(...), user_id: int = Form(...), db: Session = next(get_db())):
+    set_user_lang(user_id, language, db)
     return RedirectResponse(f"/post/{language}/all?user_id={user_id}", status_code=303)
 
-def get_comments(post_id: int):
-    conn = sqlite3.connect("db.sqlite3")
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, user_id, content, created_at FROM comments WHERE post_id=? ORDER BY created_at DESC", (post_id,))
-    rows = cursor.fetchall()
-    conn.close()
-    return [{"id": r[0], "user_id": r[1], "content": r[2], "created_at": r[3]} for r in rows]
-
-def add_comment(post_id: int, user_id: int, content: str):
-    conn = sqlite3.connect("db.sqlite3")
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO comments (post_id, user_id, content) VALUES (?, ?, ?)", (post_id, user_id, content))
-    conn.commit()
-    conn.close()
 
 @app.get("/post/{post_id}/comments/{lang}", response_class=HTMLResponse)
-async def post_comments(request: Request, post_id: int, lang: str, user_id: int = Query(...)):
-    user_lang = get_user_lang(user_id) or "en"
+async def post_comments(request: Request, post_id: int, lang: str, user_id: int = Query(...), db: Session = next(get_db())):
+    user_lang = get_user_lang(user_id, db) or "en"
     if lang != user_lang:
         return RedirectResponse(f"/post/{user_lang}/all?user_id={user_id}", status_code=303)
 
@@ -240,21 +225,12 @@ async def post_comments(request: Request, post_id: int, lang: str, user_id: int 
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
 
-    items = get_comments(post_id)
+    items = get_comments(post_id, db)
 
-    return templates.TemplateResponse("comments.html", {
-        "request": request,
-        "post": {
-            "id": post_id,
-            "title": post["title"].get(user_lang, post["title"]["en"]),
-            "body": post["body"].get(user_lang, post["body"]["en"])
-        },
-        "lang": lang,
-        "user_id": user_id,
-        "comments": items
-    })
+    return templates.TemplateResponse("comments.html", {"request": request, "post": {"id": post_id, "title": post["title"].get(user_lang, post["title"]["en"]), "body": post["body"].get(user_lang, post["body"]["en"])}, "lang": lang, "user_id": user_id, "comments": items})
+
 
 @app.post("/post/{post_id}/comments/add")
-async def post_comment_add(post_id: int, content: str = Form(...), user_id: int = Form(...), lang: str = Form(...)):
-    add_comment(post_id, user_id, content)
+async def post_comment_add(post_id: int, content: str = Form(...), user_id: int = Form(...), lang: str = Form(...), db: Session = next(get_db())):
+    add_comment(post_id, user_id, content, db)
     return RedirectResponse(f"/post/{post_id}/comments/{lang}?user_id={user_id}", status_code=303)
