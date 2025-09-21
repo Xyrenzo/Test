@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import create_engine, Column, Integer, String, Text, TIMESTAMP, UniqueConstraint, CheckConstraint, func
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 
-DATABASE_URL = "postgresql://xyrenzo:jTF8wn6fr2GxkIadpPbW4IGQB0JR9cpL@dpg-d37fp76mcj7s73fke010-a/maket"
+DATABASE_URL = "postgresql+psycopg://xyrenzo:jTF8wn6fr2GxkIadpPbW4IGQB0JR9cpL@dpg-d37fp76mcj7s73fke010-a/maket"
 
 engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
