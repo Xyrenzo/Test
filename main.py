@@ -160,7 +160,7 @@ def startup():
 
 
 @app.get("/", response_class=HTMLResponse)
-async def choose_language(request: Request, user_id: int = Query(...), db: Session = Depends(get_db())):
+async def choose_language(request: Request, user_id: int = Query(...), db: Session = Depends(get_db)):
     lang = get_user_lang(user_id, db)
     if lang:
         return RedirectResponse(url=f"/post/{lang}/all?user_id={user_id}", status_code=303)
@@ -168,13 +168,13 @@ async def choose_language(request: Request, user_id: int = Query(...), db: Sessi
 
 
 @app.post("/set_language")
-async def set_language(language: str = Form(...), user_id: int = Form(...), db: Session = Depends(get_db())):
+async def set_language(language: str = Form(...), user_id: int = Form(...), db: Session = Depends(get_db)):
     set_user_lang(user_id, language, db)
     return RedirectResponse(url=f"/post/{language}/all?user_id={user_id}", status_code=303)
 
 
 @app.get("/post/{lang}/{filter}", response_class=HTMLResponse)
-async def show_posts(request: Request, lang: str, filter: str = "all", user_id: int = Query(...), db: Session = Depends(get_db())):
+async def show_posts(request: Request, lang: str, filter: str = "all", user_id: int = Query(...), db: Session = Depends(get_db)):
     user_lang = get_user_lang(user_id, db) or "en"
 
     if lang != user_lang:
@@ -203,19 +203,19 @@ async def show_posts(request: Request, lang: str, filter: str = "all", user_id: 
 
 
 @app.post("/mark_read/{post_id}")
-async def mark_read(post_id: int, user_id: int = Query(...), db: Session = Depends(get_db())):
+async def mark_read(post_id: int, user_id: int = Query(...), db: Session = Depends(get_db)):
     mark_post_as_read(user_id, post_id, db)
     return JSONResponse({"status": "ok"})
 
 
 @app.post("/change_language")
-async def change_language(language: str = Form(...), user_id: int = Form(...), db: Session = Depends(get_db())):
+async def change_language(language: str = Form(...), user_id: int = Form(...), db: Session = Depends(get_db)):
     set_user_lang(user_id, language, db)
     return RedirectResponse(f"/post/{language}/all?user_id={user_id}", status_code=303)
 
 
 @app.get("/post/{post_id}/comments/{lang}", response_class=HTMLResponse)
-async def post_comments(request: Request, post_id: int, lang: str, user_id: int = Query(...), db: Session = Depends(get_db())):
+async def post_comments(request: Request, post_id: int, lang: str, user_id: int = Query(...), db: Session = Depends(get_db)):
     user_lang = get_user_lang(user_id, db) or "en"
     if lang != user_lang:
         return RedirectResponse(f"/post/{user_lang}/all?user_id={user_id}", status_code=303)
@@ -230,6 +230,6 @@ async def post_comments(request: Request, post_id: int, lang: str, user_id: int 
 
 
 @app.post("/post/{post_id}/comments/add")
-async def post_comment_add(post_id: int, content: str = Form(...), user_id: int = Form(...), lang: str = Form(...), db: Session = Depends(get_db())):
+async def post_comment_add(post_id: int, content: str = Form(...), user_id: int = Form(...), lang: str = Form(...), db: Session = Depends(get_db)):
     add_comment(post_id, user_id, content, db)
     return RedirectResponse(f"/post/{post_id}/comments/{lang}?user_id={user_id}", status_code=303)
