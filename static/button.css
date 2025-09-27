@@ -1,8 +1,10 @@
+/* From Uiverse.io by marcelodolza */ 
 .button {
   --primary: #ff5569;
-  --neutral-1: #f7f8f7;
-  --neutral-2: #e7e7e7;
+  --neutral-1: #0d1b2a;
+  --neutral-2: #213861;
   --radius: 14px;
+
   cursor: pointer;
   border-radius: var(--radius);
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
@@ -77,6 +79,8 @@
 .state .icon svg {
   overflow: visible;
 }
+
+/* Outline */
 .outline {
   position: absolute;
   border-radius: inherit;
@@ -113,7 +117,10 @@
 .button:hover .outline::before {
   animation-play-state: running;
 }
+
+/* Letters */
 .state p span {
+  color: #fff;
   display: block;
   opacity: 0;
   animation: slideDown 0.8s ease forwards calc(var(--i) * 0.03s);
@@ -173,6 +180,8 @@
     filter: blur(5px);
   }
 }
+
+/* Plane */
 .state--default .icon svg {
   animation: land 0.6s ease forwards;
 }
@@ -210,6 +219,8 @@
     filter: blur(0);
   }
 }
+
+/* Contrail */
 .state--default .icon:before {
   content: "";
   position: absolute;
@@ -239,6 +250,8 @@
     width: 160px;
   }
 }
+
+/* States */
 .state {
   padding-left: 29px;
   z-index: 2;
