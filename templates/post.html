@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Лента новостей</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/button.css">
 </head>
 <body>
     <header>
@@ -47,7 +48,55 @@
         <div class="post-title">{{ post.title }}</div>
         <div class="post-body">{{ post.body }}</div>
 
-        <a href="/post/{{ post.id }}/comments/{{ lang }}?user_id={{ user_id }}" class="btn comment-btn">Показать все комментарии</a>
+        <a href="/post/{{ post.id }}/comments/{{ lang }}?user_id={{ user_id }}">
+            <button class="button">
+                <span class="state state--default">
+                    <span class="icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 11.5L3 3l2.5 8.5L3 20l18-8.5Z" fill="currentColor"/>
+                        </svg>
+                    </span>
+                    <p>
+                        <span style="--i:1">П</span>
+                        <span style="--i:2">о</span>
+                        <span style="--i:3">к</span>
+                        <span style="--i:4">а</span>
+                        <span style="--i:5">з</span>
+                        <span style="--i:6">а</span>
+                        <span style="--i:7">т</span>
+                        <span style="--i:8">&nbsp;</span>
+                        <span style="--i:9">к</span>
+                        <span style="--i:10">о</span>
+                        <span style="--i:11">м</span>
+                        <span style="--i:12">м</span>
+                        <span style="--i:13">е</span>
+                        <span style="--i:14">н</span>
+                        <span style="--i:15">т</span>
+                        <span style="--i:16">а</span>
+                        <span style="--i:17">р</span>
+                        <span style="--i:18">и</span>
+                        <span style="--i:19">и</span>
+                    </p>
+                </span>
+                <span class="state state--sent">
+                    <span class="icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </span>
+                    <p>
+                        <span style="--i:1">О</span>
+                        <span style="--i:2">т</span>
+                        <span style="--i:3">к</span>
+                        <span style="--i:4">р</span>
+                        <span style="--i:5">ы</span>
+                        <span style="--i:6">т</span>
+                        <span style="--i:7">о</span>
+                    </p>
+                </span>
+                <span class="outline"></span>
+            </button>
+        </a>
     </div>
     {% endfor %}
 
@@ -63,7 +112,7 @@
                 });
             }, { threshold: 1.0 });
 
-            document.querySelectorAll(".comment-btn").forEach(btn => {
+            document.querySelectorAll(".button").forEach(btn => {
                 observer.observe(btn);
             });
         });
