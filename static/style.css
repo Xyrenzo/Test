@@ -174,22 +174,6 @@ header select {
     transform: scale(1.01);
 }
 
-.btn.comment-btn {
-    background: #0d1b2a;
-    color: #7289da;
-    text-decoration: none;
-    font-size: 14px;
-    display: block;
-    transition: all 0.2s;
-    backdrop-filter: blur(5px);
-    margin-top: 6px;
-}
-
-.btn.comment-btn:hover {
-    background: rgba(224, 226, 231, 0.95);
-    transform: translateY(-1px);
-}
-
 /* Адаптивность */
 @media (max-width: 768px) {
     .post-container {
